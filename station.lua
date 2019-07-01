@@ -2,7 +2,7 @@ wifi.eventmon.register(wifi.eventmon.STA_CONNECTED,function(t)
 print(t.SSID)
 print("Connected")
 timer=tmr.create()
-timer:alarm(500,tmr.ALARM_AUTO,main_func)
+timer:alarm(1000,tmr.ALARM_AUTO,main_func)
 end)
 
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED,function(t)
@@ -22,42 +22,38 @@ motorpins.right1=6
 motorpins.right2=5
 
 
-pwm.setup(motorpins.left1,100,0)
-pwm.setup(motorpins.left2,100,0)
-pwm.setup(motorpins.right1,100,0)
-pwm.setup(motorpins.right2,100,0)
-pwm.start(motorpins.left1)
-pwm.start(motorpins.left2)
-pwm.start(motorpins.right1)
-pwm.start(motorpins.right2)
+gpio.mode(motorpins.left1,gpio.OUTPUT)
+gpio.mode(motorpins.left2,gpio.OUTPUT)
+gpio.mode(motorpins.right1,gpio.OUTPUT)
+gpio.mode(motorpins.right2,gpio.OUTPUT)
+
 prev_RSSI=-1000
 num=0
 function main_func()
 current_RSSI=wifi.sta.getrssi()
 print(prev_RSSI,'\t',current_RSSI,'\n')
-
 if num ==0 then
     if current_RSSI>prev_RSSI then
-        pwm.setduty(motorpins.left1,0)
-        pwm.setduty(motorpins.left2,300)
-        pwm.setduty(motorpins.right1,300)
-        pwm.setduty(motorpins.right2,0)
+        gpio.write(motorpins.left1,gpio.LOW)
+        gpio.write(motorpins.left2,gpio.HIGH)
+        gpio.write(motorpins.right1,gpio.HIGH)
+        gpio.write(motorpins.right2,gpio.LOW)
         print("turning left",'\n')
     
     else
-        pwm.setduty(motorpins.left1,300)
-        pwm.setduty(motorpins.left2,0)
-        pwm.setduty(motorpins.right1,0)
-        pwm.setduty(motorpins.right2,300)
+        gpio.write(motorpins.left1,gpio.HIGH)
+        gpio.write(motorpins.left2,gpio.LOW)
+        gpio.write(motorpins.right1,gpio.LOW)
+        gpio.write(motorpins.right2,gpio.HIGH)
         print("turning right",'\n')
-        num=1
+        num=2
     end
 
 else
-        pwm.setduty(motorpins.left1,300)
-        pwm.setduty(motorpins.left2,0)
-        pwm.setduty(motorpins.right1,300)
-        pwm.setduty(motorpins.right2,0)
+    gpio.write(motorpins.left1,gpio.HIGH)
+    gpio.write(motorpins.left2,gpio.LOW)
+    gpio.write(motorpins.right1,gpio.HIGH)
+    gpio.write(motorpins.right2,gpio.LOW)
     print("Going straight",'\n')
     num=num-1
 end
