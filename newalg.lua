@@ -2,7 +2,7 @@ wifi.eventmon.register(wifi.eventmon.STA_CONNECTED,function(t)
 print(t.SSID)
 print("Connected")
 timer=tmr.create()
-timer:alarm(500,tmr.ALARM_AUTO,main_func)
+timer:alarm(300,tmr.ALARM_AUTO,main_func)
 end)
 
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED,function(t)
@@ -28,82 +28,101 @@ pwm.start(motorpins.right2)
 RSSI_1=0
 RSSI_2=0
 num=3
-duty_cycle = 300
+a=0
+duty_cycle = 400
 flag=0
+loop=true
 function main_func()
-if wifi.sta.getrssi()>-30 then
-        pwm.setduty(motorpins.left1,0)
-        pwm.setduty(motorpins.left2,0)
-        pwm.setduty(motorpins.right1,0)
-        pwm.setduty(motorpins.right2,0)
-end
-if flag==1 then
-        pwm.setduty(motorpins.left1,0)
-        pwm.setduty(motorpins.left2,duty_cycle )
-        pwm.setduty(motorpins.right1,duty_cycle )
-        pwm.setduty(motorpins.right2,0)
-        print("turning left",'\n')
-        flag=0
-        num=3
-else
-if num==3 then
-        pwm.setduty(motorpins.left1,0)
-        pwm.setduty(motorpins.left2,duty_cycle )
-        pwm.setduty(motorpins.right1,duty_cycle )
-        pwm.setduty(motorpins.right2,0)
-        print("turning left",'\n')
-        num=num-1
-
-elseif num==2 then
-        RSSI_1=wifi.sta.getrssi()
-        print("left rssi value="..RSSI_1..'\n')
-        pwm.setduty(motorpins.left1,duty_cycle )
-        pwm.setduty(motorpins.left2,0)
-        pwm.setduty(motorpins.right1,0)
-        pwm.setduty(motorpins.right2,duty_cycle )
-        print("turning right",'\n')
-        num=num-1
-
-elseif num==1 then
-        pwm.setduty(motorpins.left1,duty_cycle )
-        pwm.setduty(motorpins.left2,0)
-        pwm.setduty(motorpins.right1,0)
-        pwm.setduty(motorpins.right2,duty_cycle )
-        print("turning right",'\n')
-        num=num-1
-
-elseif num==0 then    
-        RSSI_2=wifi.sta.getrssi()
-        print("right rssi value = "..RSSI_2..'\n')
-        if math.abs(RSSI_1-RSSI_2)<=1  then
-            pwm.setduty(motorpins.left1,0)
-            pwm.setduty(motorpins.left2,duty_cycle )
-            pwm.setduty(motorpins.right1,duty_cycle )
-            pwm.setduty(motorpins.right2,0)
-            print("turning left",'\n')    
-            num=5
+        if loop then  
+                if wifi.sta.getrssi()>-30 then
+                        pwm.setduty(motorpins.left1,0)
+                        pwm.setduty(motorpins.left2,0)
+                        pwm.setduty(motorpins.right1,0)
+                        pwm.setduty(motorpins.right2,0)
+                end
+                if flag==1 then
+                        pwm.setduty(motorpins.left1,0)
+                        pwm.setduty(motorpins.left2,duty_cycle )
+                        pwm.setduty(motorpins.right1,duty_cycle )
+                        pwm.setduty(motorpins.right2,0)
+                        print("turning left",'\n')
+                        flag=0
+                        num=3
+                else
+                    if num==3 then
+                            pwm.setduty(motorpins.left1,0)
+                            pwm.setduty(motorpins.left2,duty_cycle )
+                            pwm.setduty(motorpins.right1,duty_cycle )
+                            pwm.setduty(motorpins.right2,0)
+                            print("turning left",'\n')
+                            num=num-1
+                    
+                    elseif num==2 then
+                            RSSI_1=wifi.sta.getrssi()
+                            print("left rssi value="..RSSI_1..'\n')
+                            pwm.setduty(motorpins.left1,duty_cycle )
+                            pwm.setduty(motorpins.left2,0)
+                            pwm.setduty(motorpins.right1,0)
+                            pwm.setduty(motorpins.right2,duty_cycle )
+                            print("turning right",'\n')
+                            num=num-1
+                    
+                    elseif num==1 then
+                            pwm.setduty(motorpins.left1,duty_cycle )
+                            pwm.setduty(motorpins.left2,0)
+                            pwm.setduty(motorpins.right1,0)
+                            pwm.setduty(motorpins.right2,duty_cycle )
+                            print("turning right",'\n')
+                            num=num-1
+                    
+                    elseif num==0 then    
+                            RSSI_2=wifi.sta.getrssi()
+                            print("right rssi value = "..RSSI_2..'\n')
+                            if RSSI_2>-40 or RSSI_1>-40 then
+                                a=6
+                            elseif RSSI_2>-50 or RSSI_2>-50 then
+                                a=3
+                            else 
+                                a=1
+                            end
+                            if math.abs(RSSI_1-RSSI_2)<=a  then
+                                pwm.setduty(motorpins.left1,0)
+                                pwm.setduty(motorpins.left2,duty_cycle )
+                                pwm.setduty(motorpins.right1,duty_cycle )
+                                pwm.setduty(motorpins.right2,0)
+                                print("turning left",'\n')    
+                                num=5
+                            
+                            elseif RSSI_2>RSSI_1 then
+                                num=3
+                            else
+                                pwm.setduty(motorpins.left1,0)
+                                pwm.setduty(motorpins.left2,duty_cycle )
+                                pwm.setduty(motorpins.right1,duty_cycle )
+                                pwm.setduty(motorpins.right2,0)
+                                print("turning left",'\n') 
+                                flag=flag+1
+                        
+                            end
+                    
+                    elseif num>3 then
+                            pwm.setduty(motorpins.left1,duty_cycle )
+                            pwm.setduty(motorpins.left2,0)
+                            pwm.setduty(motorpins.right1,duty_cycle )
+                            pwm.setduty(motorpins.right2,0)
+                            print("Going straight",'\n')
+                            num=num-1        
+                            end        
+                end  
         
-        elseif RSSI_2>RSSI_1 then
-            num=3
-        else
-            pwm.setduty(motorpins.left1,0)
-            pwm.setduty(motorpins.left2,duty_cycle )
-            pwm.setduty(motorpins.right1,duty_cycle )
-            pwm.setduty(motorpins.right2,0)
-            print("turning left",'\n') 
-            flag=flag+1
-    
-        end
-
-elseif num>3 then
-        pwm.setduty(motorpins.left1,duty_cycle )
-        pwm.setduty(motorpins.left2,0)
-        pwm.setduty(motorpins.right1,duty_cycle )
-        pwm.setduty(motorpins.right2,0)
-        print("Going straight",'\n')
-        num=num-1        
-end        
-end       
+        else 
+                        pwm.setduty(motorpins.left1,0)
+                        pwm.setduty(motorpins.left2,0)
+                        pwm.setduty(motorpins.right1,0)
+                        pwm.setduty(motorpins.right2,0)
+                        print("stopping",'\n')
+       end
+loop=not loop        
 end
 mode=wifi.setmode(wifi.STATIONAP)
 
