@@ -33,6 +33,9 @@ pwm.start(motorpins.right2)
 prev_RSSI=-1000
 num=0
 flag = 0
+
+pwm_duty = 300
+
 function main_func()
 
     if(flag==0) then
@@ -42,24 +45,24 @@ function main_func()
         if num ==0 then
             if current_RSSI>prev_RSSI then
                 pwm.setduty(motorpins.left1,0)
-                pwm.setduty(motorpins.left2,300)
-                pwm.setduty(motorpins.right1,300)
+                pwm.setduty(motorpins.left2,pwm_duty)
+                pwm.setduty(motorpins.right1,pwm_duty)
                 pwm.setduty(motorpins.right2,0)
                 print("turning left",'\n')
             
             else
-                pwm.setduty(motorpins.left1,300)
+                pwm.setduty(motorpins.left1,pwm_duty)
                 pwm.setduty(motorpins.left2,0)
                 pwm.setduty(motorpins.right1,0)
-                pwm.setduty(motorpins.right2,300)
+                pwm.setduty(motorpins.right2,pwm_duty)
                 print("turning right",'\n')
                 num=2
             end
     
         else
-                pwm.setduty(motorpins.left1,300)
+                pwm.setduty(motorpins.left1,pwm_duty)
                 pwm.setduty(motorpins.left2,0)
-                pwm.setduty(motorpins.right1,300)
+                pwm.setduty(motorpins.right1,pwm_duty)
                 pwm.setduty(motorpins.right2,0)
                 print("Going straight",'\n')
                 num=num-1
