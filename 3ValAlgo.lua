@@ -158,9 +158,9 @@ left_func = {
 
 
 main_func = {
-    [0]   = function() print('SURVEYING');survey_func[state.step](); state.step = state.step-1 end,
-    [1]   = function() print('AHEAD'); ahead_func[state.step](); state.step = state.step-1  end,
-    [2]   = function() print('LEFT_SURVEY') ;left_func[state.step](); state.step = state.step-1;  end,
+    [SURVEYING]   = function() print('SURVEYING');survey_func[state.step](); state.step = state.step-1 end,
+    [AHEAD]   = function() print('AHEAD'); ahead_func[state.step](); state.step = state.step-1  end,
+    [LEFT_SURVEY]   = function() print('LEFT_SURVEY') ;left_func[state.step](); state.step = state.step-1;  end,
    
  }
 
