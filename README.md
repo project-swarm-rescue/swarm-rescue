@@ -54,7 +54,8 @@ Problem(s) that remain:
 As of now we have put algorithm improvements on hold and have decided to make a mini swarm using the existing algs and probably develop on them further
 
 **General stuff to look into:**
-- Usability of a servo
+- Possibility of using a servo to have control angular movement of module
+- Using a compass sensor to have an absolute reference for relative direction
 - Curve fitting algs to make sure that we can account for fluctuations
 - Making the bot turn smaller angles to account for the decreasing change in difference in RSSI values as the bot gets closer
 -  Checkout Kalmann filters - to account for fluctuations of RSSI values
