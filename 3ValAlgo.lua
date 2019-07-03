@@ -2,14 +2,22 @@
 --CREATE FUNCTION TO RESTART THE runtimer if the sum of rssi values goes below required 
 --see if there is an automatic way to arrange for the callback regarding starting and restarting
 
+sta={}
+sta.ssid="sreekar"
+sta.pwd="omsairam"
+
+--ap_cfg = {}
+--ap_cfg.ssid = "bot1"
+--ap_cfg.password = "connecthere"
+
 --registration of callbacks
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED,function(t)
 print(t.ssid)
-print("Disconnected")
+print("Disconnected from AP")
 end)
+
 wifi.eventmon.register(wifi.eventmon.AP_STACONNECTED,function(t)
-print(t.MAC)
-print("AP on and connected b")
+print("new station connected: "..t.MAC)
 end)
 
 --VALUES OF ' PROCESS CONSTANTS'
@@ -38,7 +46,7 @@ motorpins.right2=5
 
 
 pwm_freq = 150
-pwm_duty = 300
+pwm_duty = 375
 --setup of pwm for motorpins
 pwm.setup(motorpins.left1,pwm_freq,0)
 pwm.setup(motorpins.left2,pwm_freq,0)
@@ -85,6 +93,7 @@ end
 
 function rssi_print()
     print('left :'..RSSI_values.left..'\tcentre :'..RSSI_values.centre..'\tright: '..RSSI_values.right)
+    check_reached_stop()
 end
 
 
@@ -174,6 +183,7 @@ end
 wifi.eventmon.register(wifi.eventmon.STA_CONNECTED,function(t)
     print(t.SSID)
     print("Connected")
+    --.ap.config(ap_cfg)
     --INITIALISING VALUES
     state.process = SURVEYING
     state.step = 3
@@ -182,28 +192,27 @@ wifi.eventmon.register(wifi.eventmon.STA_CONNECTED,function(t)
     RSSI_values.centre = -1000
 
     runtimer=tmr.create()
-    runtimer:alarm(1000,tmr.ALARM_AUTO,test)
+    runtimer:alarm(600,tmr.ALARM_AUTO,test)
 
     offsettimer = tmr.create()
-    offsettimer:alarm(500,tmr.ALARM_SINGLE,function()
+    offsettimer:alarm(300,tmr.ALARM_SINGLE,function()
         stoptimer = tmr.create()
-        stoptimer:alarm(1000,tmr.ALARM_AUTO,stop)
+        stoptimer:alarm(600,tmr.ALARM_AUTO,stop)
     end)    
 
 end)
 --function to check if the bot has reached close enough
 function check_reached_stop()
-    if RSSI_values.left+RSSI_values.centre+RSSI_values.right > -60 then
+    if RSSI_values.left+RSSI_values.centre+RSSI_values.right > -120 then
         runtimer:stop()
     end    
 end
 
 mode=wifi.setmode(wifi.STATIONAP)
 
-sta={}
-sta.ssid="sreekar"
-sta.pwd="omsairam"
+
 wifi.sta.config(sta)
+
 
 
 
