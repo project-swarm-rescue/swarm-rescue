@@ -1,3 +1,6 @@
+--TODO
+--CREATE FUNCTION TO RESTART THE runtimer if the sum of rssi values goes below required 
+--see if there is an automatic way to arrange for the callback regarding starting and restarting
 
 --registration of callbacks
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED,function(t)
@@ -34,8 +37,8 @@ motorpins.right1=6
 motorpins.right2=5
 
 
-pwm_freq = 100
-pwm_duty = 250
+pwm_freq = 150
+pwm_duty = 300
 --setup of pwm for motorpins
 pwm.setup(motorpins.left1,pwm_freq,0)
 pwm.setup(motorpins.left2,pwm_freq,0)
@@ -53,7 +56,7 @@ function left()
         pwm.setduty(motorpins.left2,pwm_duty)
         pwm.setduty(motorpins.right1,pwm_duty)
         pwm.setduty(motorpins.right2,0)
-        print("Left Turn",'\n')
+        print("Left Turn")
 end
 
 function right()
@@ -61,7 +64,7 @@ function right()
         pwm.setduty(motorpins.left2,0)
         pwm.setduty(motorpins.right1,0)
         pwm.setduty(motorpins.right2,pwm_duty)
-        print("Right turn",'\n')
+        print("Right turn")
 end
 
 function forward()  
@@ -69,7 +72,7 @@ function forward()
         pwm.setduty(motorpins.left2,0)
         pwm.setduty(motorpins.right1,pwm_duty)
         pwm.setduty(motorpins.right2,0)
-        print("Forward",'\n')
+        print("Forward")
 end
 
 function stop()
@@ -80,13 +83,21 @@ function stop()
         print("Stopped")
 end
 
+function rssi_print()
+    print('left :'..RSSI_values.left..'\tcentre :'..RSSI_values.centre..'\tright: '..RSSI_values.right)
+end
+
+
+
 survey_func = {
     [3] = left,
     [2] = function() RSSI_values.left = wifi.sta.getrssi(); right() end,
     [1] = function() RSSI_values.centre = wifi.sta.getrssi() ;  right() end,
     [0] = function()
             RSSI_values.right = wifi.sta.getrssi()
+            rssi_print()
             if RSSI_values.centre>=RSSI_values.right and RSSI_values.centre>=RSSI_values.left then
+                print('surveying to ahead')
                 state.process = AHEAD
                 state.step = steps_max[AHEAD]
                 left()
@@ -98,6 +109,7 @@ survey_func = {
                 state.step = steps_max[SURVEYING] - 2
                 right()
             else   
+                print('surveying to left')
                 state.process = LEFT_SURVEY
                 state.step = steps_max[LEFT_SURVEY]
                 left()
@@ -109,6 +121,7 @@ ahead_func = {
     [2] = forward,
     [1] = forward,
     [0] = function() 
+            print('ahead to surveying')
             state.process = SURVEYING
             state.step = steps_max[SURVEYING]
             left()
@@ -120,7 +133,9 @@ left_func = {
     [1] = function() RSSI_values.centre = wifi.sta.getrssi(); left() end,
     [0] = function()
             RSSI_values.left = wifi.sta.getrssi()
+            rssi_print()
             if RSSI_values.centre>=RSSI_values.right and RSSI_values.centre>=RSSI_values.left then
+                print('left_survey to ahead')
                 state.process = AHEAD
                 state.step = steps_max[AHEAD]
                 right()
@@ -132,6 +147,7 @@ left_func = {
                 state.step = steps_max[LEFT_SURVEY] - 2
                 left()
             else   
+                print('left_survey to surveying')
                 state.process = SURVEYING
                 state.step = steps_max[SURVEYING]
                 right()
@@ -142,11 +158,17 @@ left_func = {
 
 
 main_func = {
-    [SURVEYING]   = function() survey_func[state.step](); state.step = state.step-1;print("SURVEYING step"..state.step) end,
-    [AHEAD]       = function() ahead_func[state.step](); state.step = state.step-1; print("AHEAD step"..state.step) end,
-    [LEFT_SURVEY] = function() left_func[state.step](); state.step = state.step-1; print("LEFT_SURVEY"..state.step) end,
+    [0]   = function() print('SURVEYING');survey_func[state.step](); state.step = state.step-1 end,
+    [1]   = function() print('AHEAD'); ahead_func[state.step](); state.step = state.step-1  end,
+    [2]   = function() print('LEFT_SURVEY') ;left_func[state.step](); state.step = state.step-1;  end,
    
  }
+
+function test()
+    print('\nProcess number running:'..state.process)
+    print('step: '..state.step..' of ') 
+    main_func[state.process]()
+end
 
 --callback after connection
 wifi.eventmon.register(wifi.eventmon.STA_CONNECTED,function(t)
@@ -159,12 +181,22 @@ wifi.eventmon.register(wifi.eventmon.STA_CONNECTED,function(t)
     RSSI_values.right = -1000
     RSSI_values.centre = -1000
 
-    timer=tmr.create()
-    timer:alarm(1000,tmr.ALARM_AUTO,main_func[state.process])
+    runtimer=tmr.create()
+    runtimer:alarm(1000,tmr.ALARM_AUTO,test)
 
-    
+    offsettimer = tmr.create()
+    offsettimer:alarm(500,tmr.ALARM_SINGLE,function()
+        stoptimer = tmr.create()
+        stoptimer:alarm(1000,tmr.ALARM_AUTO,stop)
+    end)    
 
 end)
+--function to check if the bot has reached close enough
+function check_reached_stop()
+    if RSSI_values.left+RSSI_values.centre+RSSI_values.right > -60 then
+        runtimer:stop()
+    end    
+end
 
 mode=wifi.setmode(wifi.STATIONAP)
 
