@@ -60,8 +60,11 @@ function atan2(y, x)
     return 0
 end
 
-hmc5883l.init(sda, scl)       --initialize hmc5883l
-while true do   --read and print accelero, gyro and temperature value
+
+i2c.setup(id, sda, scl, i2c.SLOW) -- call i2c.setup() only once
+hmc5883l.setup()
+
+function read_heading()  --read and print accelero, gyro and temperature value
     local x,z,y = hmc5883l.read()
     Heading = atan2(y, x) + Declination
 
@@ -74,5 +77,8 @@ while true do   --read and print accelero, gyro and temperature value
 
     Heading = Heading*180/pi  --convert radian to angle
     print(string.format("Heading angle : %d", Heading))
-    tmr.delay(10000)   -- 10ms timer delay
 end
+
+
+timer = tmr.create()
+timer:alarm(500,tmr.ALARM_AUTO,read_heading)
