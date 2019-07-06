@@ -58,7 +58,7 @@ pwm.start(motorpins.right1)
 pwm.start(motorpins.right2)
 
 
---setting pwm to perform movements
+--setting pwm to perform bot movements
 function left()
         pwm.setduty(motorpins.left1,0)
         pwm.setduty(motorpins.left2,pwm_duty)
@@ -96,12 +96,17 @@ function rssi_print()
     check_reached_stop()
 end
 
+--SERVO TURNING FUNCTIONS
+function servoLeft()
+	
+end
 
 
+--modified to direct servo instead of wheels
 survey_func = {
-    [3] = left,
-    [2] = function() RSSI_values.left = wifi.sta.getrssi(); right() end,
-    [1] = function() RSSI_values.centre = wifi.sta.getrssi() ;  right() end,
+    [3] = pwm.setduty(servoPin,servoAClkwiseSlow)
+    [2] = function() RSSI_values.left = wifi.sta.getrssi();pwm.setduty(servoPin,servoClkwiseSlow)  end,
+    [1] = function() RSSI_values.centre = wifi.sta.getrssi() ; pwm.setduty(servoPin,servoClkwiseSlow) end,
     [0] = function()
             RSSI_values.right = wifi.sta.getrssi()
             rssi_print()
@@ -109,23 +114,25 @@ survey_func = {
                 print('surveying to ahead')
                 state.process = AHEAD
                 state.step = steps_max[AHEAD]
-                left()
+                pwm.setduty(servoPin,servoAClkwiseSlow)
             elseif RSSI_values.right>RSSI_values.left then
                 --process remains the same
                 --shifting rssi values and taking a subset of SURVEYING
                 RSSI_values.left = RSSI_values.centre
                 RSSI_values.centre = RSSI_values.right                
                 state.step = steps_max[SURVEYING] - 2
-                right()
+                pwm.setduty(servoPin,servoClkwiseSlow)
             else   
                 print('surveying to left')
                 state.process = LEFT_SURVEY
                 state.step = steps_max[LEFT_SURVEY]
-                left()
+                pwm.setduty(servoPin,servoAClkwiseSlow)
                 
             end
           end,
 }
+
+
 ahead_func = {
     [2] = forward,
     [1] = forward,
@@ -133,7 +140,7 @@ ahead_func = {
             print('ahead to surveying')
             state.process = SURVEYING
             state.step = steps_max[SURVEYING]
-            left()
+            pwm.setduty(servoPin,servoAClkwiseSlow)
           end,
 }
 
@@ -191,13 +198,10 @@ wifi.eventmon.register(wifi.eventmon.STA_CONNECTED,function(t)
     RSSI_values.right = -1000
     RSSI_values.centre = -1000
 
-    runtimer=tmr.create()
-    runtimer:alarm(600,tmr.ALARM_AUTO,test)
+    servoruntimer=tmr.create()
+    servoruntimer:alarm(600,tmr.ALARM_AUTO,test)
 
-    offsettimer = tmr.create()
-    offsettimer:alarm(300,tmr.ALARM_SINGLE,function()
-        stoptimer = tmr.create()
-        stoptimer:alarm(600,tmr.ALARM_AUTO,stop)
+    
     end)    
 
 end)
