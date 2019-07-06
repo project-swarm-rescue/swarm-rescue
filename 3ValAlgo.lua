@@ -3,12 +3,12 @@
 --see if there is an automatic way to arrange for the callback regarding starting and restarting
 
 sta={}
-sta.ssid="sreekar"
-sta.pwd="omsairam"
+sta.ssid="OnePlus 6T"
+sta.pwd="12345678"
 
---ap_cfg = {}
---ap_cfg.ssid = "bot1"
---ap_cfg.password = "connecthere"
+ap_cfg = {}
+ap_cfg.ssid = "bot1"
+ap_cfg.password = "connecthere"
 
 --registration of callbacks
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED,function(t)
@@ -183,7 +183,7 @@ end
 wifi.eventmon.register(wifi.eventmon.STA_CONNECTED,function(t)
     print(t.SSID)
     print("Connected")
-    --.ap.config(ap_cfg)
+    wifi.ap.config(ap_cfg)
     --INITIALISING VALUES
     state.process = SURVEYING
     state.step = 3
@@ -203,7 +203,7 @@ wifi.eventmon.register(wifi.eventmon.STA_CONNECTED,function(t)
 end)
 --function to check if the bot has reached close enough
 function check_reached_stop()
-    if RSSI_values.left+RSSI_values.centre+RSSI_values.right > -120 then
+    if RSSI_values.left+RSSI_values.centre+RSSI_values.right > -90 then
         runtimer:stop()
     end    
 end
