@@ -65,7 +65,7 @@ i2c.setup(id, sda, scl, i2c.SLOW) -- call i2c.setup() only once
 hmc5883l.setup()
 
 function read_heading()  --read and print accelero, gyro and temperature value
-    local x,z,y = hmc5883l.read()
+    local x,y,z = hmc5883l.read()
     Heading = atan2(y, x) + Declination
 
     if (Heading>2*pi) then    --Due to declination check for >360 degree 
