@@ -29,7 +29,7 @@ RSSI_1=0
 RSSI_2=0
 num=3
 a=0
-duty_cycle = 400
+duty_cycle = 900
 flag=0
 loop=true
 function main_func()
