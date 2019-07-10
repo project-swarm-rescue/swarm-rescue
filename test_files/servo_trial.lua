@@ -1,19 +1,23 @@
 
-servopin =8
-a=10
-pwm.setup(servopin,50,a)
+servopin =7
+angle =0
+pwm.setup(servopin,50,angle)
 
 pwm.start(servopin)
+
+
+function angle_servo()
+print(angle.." degrees")
+local duty = 25.575 + (angle/180)*102.3
+pwm.setduty(servopin,duty)
+end
 
 timer = tmr.create()
 timer:alarm(3000,tmr.ALARM_AUTO,function()
 
-print(a) 
-pwm.setduty(servopin,a)
-
-if a ==130 then 
+if angle == 180 then
 timer:unregister()
 end
-
-a=a+10
+angle_servo()
+angle=angle+10
 end)
