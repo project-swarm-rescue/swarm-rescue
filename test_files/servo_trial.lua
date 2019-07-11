@@ -19,5 +19,5 @@ if angle == 180 then
 timer:unregister()
 end
 angle_servo()
-angle=angle+10
+angle=angle+1
 end)
