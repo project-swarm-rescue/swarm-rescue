@@ -1,6 +1,6 @@
 servoPin=7
 duty=26
-N=103
+N=96
 
 RSSI = {}  -- create the matrix
 for i=1,N do
@@ -33,7 +33,7 @@ dir=1
 function read_move()
   --setup code to reverse direction if false
     rssi_val = wifi.sta.getrssi()
-    print(rssi_val)
+    print(k..' '..rssi_val)
     if dir==1 then
         RSSI[1][k] =rssi_val
         if k==N then
@@ -59,7 +59,7 @@ pwm.setup(servoPin,50,duty)
 print("connected")
 pwm.start(servoPin)
 timer=tmr.create()
-timer:alarm(700,tmr.ALARM_AUTO,read_move)
+timer:alarm(800,tmr.ALARM_AUTO,read_move)
 end)
 
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED,function()
