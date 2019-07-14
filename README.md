@@ -60,35 +60,35 @@ As of now we have put algorithm improvements on hold and have decided to make a 
 -  Checkout Kalmann filters - to account for fluctuations of RSSI values
 
 ### Using a servo to control angular movement:
-We have used a servo on top of a robot and attached a node mcu on top of it to control the angular movement of the module. We then take reading for every angle corresponding to an integral value of pwm. From this RSSI data we find the maximum and then turn towards that direction. We also took the value twice and then averaged them to see if there are any differences.
+- We have used a servo on top of a robot and attached a node mcu on top of it to control the angular movement of the module. We then take reading for every angle corresponding to an integral value of pwm. From this RSSI data we find the maximum and then turn towards that direction. We also took the value twice and then averaged them to see if there are any differences.
 
 ### Problem(s) overcome:
--Initially we could'nt control the angular movement of the robot but now we are able to control the amount by which the bot turns. 
--Without averaging the values, we found that at times the bot finally turned to positions which were not even close to the AP. But upon averaging the values we were able to turn the bot to the right direction (off by a maximum of 20 degrees).
--We were now able to plot the RSSI vs angle readings are was able to notice some patterns in it. (But they were no way related to the plots we expected)
--The issue that RSSI is giving some random values is not resolved and clarified. The RSSI is not related to the patterns we expected but definitely has some similarities when compared along different distances and angles.
+- Initially we could'nt control the angular movement of the robot but now we are able to control the amount by which the bot turns. 
+- Without averaging the values, we found that at times the bot finally turned to positions which were not even close to the AP. But upon averaging the values we were able to turn the bot to the right direction (off by a maximum of 20 degrees).
+- We were now able to plot the RSSI vs angle readings are was able to notice some patterns in it. (But they were no way related to the plots we expected)
+- The issue that RSSI is giving some random values is not resolved and clarified. The RSSI is not related to the patterns we expected but definitely has some similarities when compared along different distances and angles.
 
 ### Problem(s) that remain:
--The servo can rotate to all angles ranging from 0 to 180 degrees. But the pwm which can be provided can only be integer values and hence we are limited to the actual number of angles we can turn the servo given the particular frequency at which a servo operates.
--We are still not able to understand why the RSSI values are varying by a lot when measured from right-left and vice versa. 
+- The servo can rotate to all angles ranging from 0 to 180 degrees. But the pwm which can be provided can only be integer values and hence we are limited to the actual number of angles we can turn the servo given the particular frequency at which a servo operates.
+- We are still not able to understand why the RSSI values are varying by a lot when measured from right-left and vice versa. 
 
 ### Using a compass sensor to find absolute reference angles for relative direction
--We thought we had an HMC5883L sensor but looks like we have got a QMC5883L sensor.
--To actually use the sensor we had to build a custom firmware and then upload it onto the nodemcu to actual read values from the QMC5883L
+- We thought we had an HMC5883L sensor but looks like we have got a QMC5883L sensor.
+- To actually use the sensor we had to build a custom firmware and then upload it onto the nodemcu to actual read values from the QMC5883L
 
 ### Problem(s) that remain:
--We see that the heading angle values are repeating. Probably its because of the code we have used. We havent spent much time on it and so we cannot comment on it.
+- We see that the heading angle values are repeating. Probably its because of the code we have used. We havent spent much time on it and so we cannot comment on it.
 
 ### Future scope:
--We can definitely point out the angles using the QMC5883L and require it to turn the bot to the required direction and maybe to also pin-point the location of the target.
--We first need to implement this onto the far-away algorithm.
+- We can definitely point out the angles using the QMC5883L and require it to turn the bot to the required direction and maybe to also pin-point the location of the target.
+- We first need to implement this onto the far-away algorithm.
 
 ### Far-away algorithm:
--We are yet to work on this algorithm. 
--The crux of the algorithm is that at far away distances we move the bot radially in different directions and compare the RSSI values and then we can pin point that the source is somewhere between two values and hence we can determine the zone of interest.
+- We are yet to work on this algorithm. 
+- The crux of the algorithm is that at far away distances we move the bot radially in different directions and compare the RSSI values and then we can pin point that the source is somewhere between two values and hence we can determine the zone of interest.
 
 ### Problems we hope to overcome:
--We believe that the issue where the RSSI values dont actually vary by a lot at far away distances can be avoided by this algorithm since here we are actually moving the bot by some distance and then comparing the values.
+- We believe that the issue where the RSSI values dont actually vary by a lot at far away distances can be avoided by this algorithm since here we are actually moving the bot by some distance and then comparing the values.
 
 
 ### Similarities in the plots:
@@ -97,17 +97,17 @@ We have used a servo on top of a robot and attached a node mcu on top of it to c
 
 
 
-###Smoothening algs we have used so far: (can't call them smoothening algs, rather something we made our own to remove the sudden kinks on the plot)
--We take a value compare the previous and the next. If its not between them we take the mean and replace the data with that. Else we just continue. (This algorithm was able to reduce the suddenk peaks)
--Next we decided to take three values and then take the mean of them and replace the 2nd with this value and remove the rest as well. This reduced the number of points as well.( However this significantly changed the peaks)
+### Smoothening algs we have used so far: (can't call them smoothening algs, rather something we made our own to remove the sudden kinks on the plot)
+- We take a value compare the previous and the next. If its not between them we take the mean and replace the data with that. Else we just continue. (This algorithm was able to reduce the suddenk peaks)
+- Next we decided to take three values and then take the mean of them and replace the 2nd with this value and remove the rest as well. This reduced the number of points as well.( However this significantly changed the peaks)
 
 
 ### What we plan to do:
--We will be making ML algorithms to implement on the data set.
---Hence we need to first look upon which algorithm is best suited for this purpose.
---As of now we have two ideas. One to directly predict the angle upon entering the data read. Second is to use nueral networks to predict the probability that a given data can be the maximum.
--We also would like to make the far-away algorithm.
--Check the code for the heading angle.
--Decide on the smoothening algorithm to use.(First whether to use or not and then which one as well)
+- We will be making ML algorithms to implement on the data set.
+-- Hence we need to first look upon which algorithm is best suited for this purpose.
+-- As of now we have two ideas. One to directly predict the angle upon entering the data read. Second is to use nueral networks to predict the probability that a given data can be the maximum.
+- We also would like to make the far-away algorithm.
+- Check the code for the heading angle.
+- Decide on the smoothening algorithm to use.(First whether to use or not and then which one as well)
 
 
