@@ -1,4 +1,4 @@
-f=open('16-Centre2180deg tilted','r')
+f=open('5-Right1','r')
 RSSI1=[]
 RSSI2=[]
 RSSI3=[]
@@ -16,39 +16,39 @@ for line in f:
             RSSI1.append(float(line[1]))
             RSSI2.append(float(line[2]))
             RSSI3.append(float(line[3]))
-# def smoothen(RSSI):
-#     i=1
-#     smoothened_value=[]
-#     smoothened_value.append(RSSI[0])
-#     while i<len(RSSI)-1:
-#         if RSSI[i]>=RSSI[i-1] and RSSI[i]<=RSSI[i+1]:
-#             smoothened_value.append(RSSI[i])
-#         elif RSSI[i]<=RSSI[i-1] and RSSI[i]>=RSSI[i+1]:
-#             smoothened_value.append(RSSI[i])
-#         else:
-#             smoothened_value.append((RSSI[i-1]+RSSI[i+1])/2)
-#
-#         i=i+1
-#     smoothened_value.append(RSSI[len(RSSI)-1])
-#     return smoothened_value
-#
-# def plot():
-#     import matplotlib.pyplot as plt
-#     fig,ax=plt.subplots(3,1)
-#     ax[0].plot(sno,RSSI1)
-#     ax[0].plot(sno,RSSI2)
-#     ax[0].plot(sno,RSSI3)
-#     ax[1].plot(sno,smoothened1)
-#     ax[1].plot(sno,smoothened2)
-#     ax[1].plot(sno,smoothened3)
-#     ax[2].plot(sno,smoothened3)
-#     ax[2].plot(sno,RSSI3)
-#
-#     plt.show()
-# smoothened1=smoothen(RSSI1)
-# smoothened2=smoothen(RSSI2)
-# smoothened3=smoothen(RSSI3)
-# plot()
+def smoothen(RSSI):
+    i=1
+    smoothened_value=[]
+    smoothened_value.append(RSSI[0])
+    while i<len(RSSI)-1:
+        if RSSI[i]>=RSSI[i-1] and RSSI[i]<=RSSI[i+1]:
+            smoothened_value.append(RSSI[i])
+        elif RSSI[i]<=RSSI[i-1] and RSSI[i]>=RSSI[i+1]:
+            smoothened_value.append(RSSI[i])
+        else:
+            smoothened_value.append((RSSI[i-1]+RSSI[i+1])/2)
+
+        i=i+1
+    smoothened_value.append(RSSI[len(RSSI)-1])
+    return smoothened_value
+
+def plot():
+    import matplotlib.pyplot as plt
+    fig,ax=plt.subplots(3,1)
+    ax[0].plot(sno,RSSI1)
+    ax[0].plot(sno,RSSI2)
+    ax[0].plot(sno,RSSI3)
+    ax[1].plot(sno,smoothened1)
+    ax[1].plot(sno,smoothened2)
+    ax[1].plot(sno,smoothened3)
+    ax[2].plot(sno,smoothened3)
+    ax[2].plot(sno,RSSI3)
+
+    plt.show()
+smoothened1=smoothen(RSSI1)
+smoothened2=smoothen(RSSI2)
+smoothened3=smoothen(RSSI3)
+plot()
 # i=0
 # smoothen=[]
 # s=[]
@@ -60,8 +60,8 @@ for line in f:
 # plt.plot(s,smoothen)
 # plt.plot(sno,RSSI1)
 # plt.show()
-import matplotlib.pyplot as plt
-plt.plot(sno,RSSI1)
-plt.plot(sno,RSSI2)
-plt.plot(sno,RSSI3)
-plt.show()
+# import matplotlib.pyplot as plt
+# plt.plot(sno,RSSI1)
+# plt.plot(sno,RSSI2)
+# plt.plot(sno,RSSI3)
+# plt.show()
