@@ -49,3 +49,11 @@ https://drive.google.com/drive/folders/0B4xTxuaiVCZyaUlkZkNHN1c2RVE
 
 how to unbrick the node mcu documentation
 https://blog.vinczejanos.info/2016/11/14/unbrick-esp8266-blinking-blue-led/
+
+buzz cheatsheet 
+https://the.swarming.buzz/wiki/doku.php?id=buzz_syntax_cheatsheet
+buzz syntax
+https://the.swarming.buzz/wiki/doku.php?id=buzz_syntax_bnf
+
+NRf
+https://howtomechatronics.com/tutorials/arduino/arduino-wireless-communication-nrf24l01-tutorial/
