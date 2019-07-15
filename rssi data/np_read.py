@@ -2,15 +2,24 @@ from os import path
 import numpy as np
 
 filepath = "data/1-Centre1"
-xy_data = []
+
 
 #function to take values and store them in a numpy array
 def read_values():
+	xy_data = []
+	ldata = []
+
 	for line in f:
-		ldata = [int(s) for s in line.split() if s.isdigit()]
-		print(ldata)
-		if(len(ldata)>0):
-			xy_data.append(ldata)
+		if(line[0]!='#'):		#ignoring header and bottom
+			#ldata = [int(s) for s in line.split() if s.isdigit()] - works only for positive integers
+			for t in line.split():
+				try:
+					ldata.append(float(t))
+				except ValueError:
+					pass
+			if(len(ldata)>0):	#checking for empty lines
+				xy_data.append(ldata.copy())
+				ldata.clear()
 	np_xy_data = np.array(xy_data)
 	print("np array: {}".format(np_xy_data))
 	f.close()
