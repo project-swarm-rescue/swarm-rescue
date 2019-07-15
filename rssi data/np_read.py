@@ -1,7 +1,7 @@
 from os import path
 import numpy as np
 
-filepath = "data/file1.txt"
+filepath = "data/1-Centre1"
 xy_data = []
 
 #function to take values and store them in a numpy array
