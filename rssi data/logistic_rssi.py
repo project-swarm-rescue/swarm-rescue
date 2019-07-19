@@ -3,7 +3,7 @@ import batchGD as bGD
 import glob
 
 alpha = 0.03
-lam = 0.03
+lam = 0.003
 
 sigmoid = lambda val : np.exp(val)/(1+np.exp(val)) #sigmoid of a numpy array
 
@@ -29,19 +29,26 @@ for class_name in class_names:
 print('x:{},dimension: {} shape:{}'.format(x,x.ndim,x.shape))
 print('y:{},dimension:{},shape:{}'.format(y,y.ndim,y.shape))
 
+
+
+#feature scaling
+x_scaled=(x - np.mean(x))/np.std(x)
+print('scaled values:{}'.format(x_scaled))
+
 # stack a column of ones with x
-X =np.column_stack((np.ones(x.shape[0]),x))
-print("X :\n{}\n".format(X))
+X_scaled =np.column_stack((np.ones(x_scaled.shape[0]),x_scaled))
+print("X_scaled :\n{}\n".format(X_scaled))
 
 #initialise theta and implement GD
-theta = np.random.rand(len(class_names),X.shape[1])
+epsilon = 0.5
+theta = np.random.rand(len(class_names),X_scaled.shape[1])*2*epsilon - epsilon
 print('initial theta:{}'.format(theta))
-theta=bGD.gradDesc(theta,X,y,alpha,lam)
+theta=bGD.gradDesc(theta,X_scaled,y,alpha,lam)
 
 print("calculated parameters : \n{}".format(theta))
 
 #predictions for training data
-p=sigmoid(X@theta)
+p=sigmoid(X_scaled@theta.T)
 print('probability outcome for training data set\n {}'.format(p))
 
 #Accuracy
