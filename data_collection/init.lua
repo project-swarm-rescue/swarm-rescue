@@ -80,7 +80,7 @@ pwm.setup(servoPin,50,duty)
 print("connected to ap")
 pwm.start(servoPin)
 timer=tmr.create()
-timer:alarm(1000,tmr.ALARM_AUTO,read_move)
+timer:alarm(100,tmr.ALARM_AUTO,read_move)
 end)
 
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED,function()
