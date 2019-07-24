@@ -10,6 +10,3 @@ ap_cfg={}
 ap_cfg.ssid = "esp456"
 ap_cfg.password = "connecthere"
 wifi.ap.config(ap_cfg)
-
-
-

@@ -1,4 +1,4 @@
-servoPin=7
+servoPin=8
 duty=26
 N=96
 
@@ -31,6 +31,7 @@ function avg_findMax()
     pwm.setduty(servoPin,KEY_MAX +25)
     print("key max"..KEY_MAX.." RSSI_MAX"..MAX_RSSI)
 
+    --wifi.setmode(wifi.SOFTAP)
     wifi.sta.disconnect()
     wifi.ap.config(ap_cfg)    
     server = net.createServer(net.TCP)-- create TCP server
@@ -80,7 +81,7 @@ pwm.setup(servoPin,50,duty)
 print("connected to ap")
 pwm.start(servoPin)
 timer=tmr.create()
-timer:alarm(100,tmr.ALARM_AUTO,read_move)
+timer:alarm(1000,tmr.ALARM_AUTO,read_move)
 end)
 
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED,function()
@@ -91,19 +92,19 @@ wifi.setmode(wifi.STATIONAP)
 
 --station configuration
 sta_cfg= {}
-sta_cfg.ssid = "esp123"
+sta_cfg.ssid = "esp456"
 sta_cfg.pwd="connecthere"
 wifi.sta.config(sta_cfg)
 
 --ap config
 ap_cfg={}
-ap_cfg.ssid = "esp"
-ap_cfg.password = "connecthere"
+ap_cfg.ssid = "esp2"
+ap_cfg.password = "connecthere1"
 
 config_ip = {}  -- set IP,netmask, gateway
-config_ip.ip = "192.168.2.1"
+config_ip.ip = "192.168.2.2"
 config_ip.netmask = "255.255.255.0"
-config_ip.gateway = "192.168.2.1"
+config_ip.gateway = "192.168.2.2"
 wifi.ap.setip(config_ip)
 
 --RESPONSE TO REQUESTS

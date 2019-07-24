@@ -54,3 +54,4 @@ print('inverse:{}'.format(np.linalg.inv(x_cov)))
 
 Px_y= (1/(np.sqrt(2*pi*cov_det)))*np.exp(-0.5*((x-x_k_mean).transpose(0,1,2,3)@np.linalg.inv(x_cov)@(x-x_k_mean)))
 print('P(X|y=k):\n{}'.format(Px_y))
+
