@@ -110,4 +110,26 @@ As of now we have put algorithm improvements on hold and have decided to make a 
 - Check the code for the heading angle.
 - Decide on the smoothening algorithm to use.(First whether to use or not and then which one as well)
 
+### Ml Algs implemented
+- We had tried implementing logistic regression on the limited data set available and was succesfully able to classify them into classes (data limited to 5 classes)
+- We have also tried implementing nueral networks and qda which can be used for classifying complicated data and hence we need to take the required data for it
+- Nueral networks have been tested on the limited data we have and has porovided good results. Qda has some issues due to the limited data we have.
+- Data is being collected for intervals of 8 pwm values. with 12 positions in each and two iterations at each position. However the data collected is not perfect and more are yet to be done.
+- As of now we plan to use this data which we are collecting to improve on the bot
+
+### Far away algorithm
+- We have made a different algorithm at far away distances cause the rssi values at far away distances dont vary much with angle. 
+- When the rssi is below a threshold value we say that the bot goes forward by some distance, Turns left then moves forward. 
+- It creates a vectorised denotion of the rssi at these two perpendicular directions. (as we like to call it)
+- Then we try to vectorially sum them up and then decide on the direction of strenght (as in the resultant of the two)
+- Then we move in the resultant's direction and once we reach the threshhold's rssi we switch algs.
+
+### What we need to do next
+- We plan on implementing a swarm.
+- This requires us to fix the heading angle issue.
+- This also requires us to make the code ready for controlling the bot.
+- for the ML algs to work properly we need to get the data as quickly as possibly and feed on the ML alg.
+- This requires us to decide on the specifics of which alg we want to use.
+- Next we need to check on how the bots get connected and so on.
+
 
