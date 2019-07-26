@@ -102,7 +102,7 @@ wifi.eventmon.register(wifi.eventmon.STA_CONNECTED,function(t)
 		if done_scanning==true then
 			forward()
 			done_scanning=false
-			step=2
+			step=3
 			servo_timer:register(1000,tmr.ALARM_AUTO,servo_scan)
 		end
 	end)
@@ -183,6 +183,7 @@ function servo_scan()
 					
 				end
 			end)
+		end
 
 	end
 end
