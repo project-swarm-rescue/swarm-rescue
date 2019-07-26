@@ -57,147 +57,132 @@ end
 
 
 
---initialising servopin
-servopin=7
-pwm.setup(servopin,50,26)
-pwm.start(servopin)
+--setting up wifi mode
+wifi.setmode(wifi.STATION)
 
-
-
---creating servo timer object
-servo_timer=tmr.create()
---function near_movements
-
-function servo_movements()
-	if step==2 then
-		N=96
-		RSSI = {}  -- create the matrix
-		for i=1,N do
-      		RSSI[i] = {}     -- create a new row
-      		for j=1,2 do
-        		RSSI[i][j] = 0
-      		end
-    	end
-		--setting initial position
-		pwm.setduty(servopin,26)
-		pwm_position=26
-		--servo_timer making it rotate anti clockwise
-		servo_timer:alarm(1000,tmr.ALARM_AUTO,function()
-
-			RSSI[0][pwm_position-25]=wifi.sta.getrssi()
-			--checking if it has reached 96th turn
-			if pwm_position==26+96 then
-				servo_timer:unregister()
-			else
-				pwm_position=pwm_position+1
-				pwm.setduty(servopin,pwm_position)
-			end
-		end)
-		step=step-1
-	end
-	if step==1 then
-		--setting initial position
-		pwm.setduty(servopin,26+96)
-		pwm_position=96+26
-				--servo_timer making it rotate clockwise
-		servo_timer:alarm(1000,tmr.ALARM_AUTO,function()
-
-			RSSI[1][pwm_position-25]=wifi.sta.getrssi()
-			--checking if it has reached 96th turn
-			if pwm_position==26 then
-				servo_timer:unregister()
-			else
-				pwm_position=pwm_position-1
-				pwm.setduty(servopin,pwm_position)
-			end
-		end)
-		--finding rssi_avg
-		rssi_avg={}
-		for i =1,96 do
-			rssi_avg=(RSSI[0][i]+RSSI[1][i])/2
-		end
-
-		
-	end
-	return rssi_avg
-end
-
---do the calculations
-function predict()
-	return predicted_pwm
-
---creating turn_timer object
-turn_timer=tmr.create()
-
---function to turn the bot
-function turn_bot()
-	heading_1=compass_reading()
-	pwm.setduty(servopin,predicted_pwm)
-	t=tmr.create()
-	t:alarm(200,tmr.ALARM_SINGLE,function(t)
-		print("turning to predicted_pwm")
-	end)
-	heading_2=compass_reading()
-	if math.abs(heading_2-heading_1)>180 then
-		diff_heading=360-math.abs(heading_2-heading_1)
-	else
-		diff_heading=math.abs(heading_2-heading_1)
-	end
-
-	if heading_2-diff_heading<0 then
-		target_heading=heading_2-diff_heading+360
-	else 
-		target_heading=heading_2-diff_heading
-	end
-
-	left()
-	turn_timer:register(100,tmr.ALARM_AUTO,function(t)
-		curr_heading=compass_reading()
-		if curr_heading<=target_heading then
-			stop()
-			t:unregister()
-			
-		end
-	end)
-end
-
-	
-
-			
---setting up the wifi
-mode=wifi.setmode(wifi.STATION)
-
+--station configuration
 sta={}
-sta.ssid="OnePlus6T"
+sta.ssid="OnePlus 6T"
 sta.pwd="12345678"
+wifi.sta.config(sta)
 
 --registration of callbacks
 --Disconnected from AP callback
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED,function(t)
 print(t.ssid)
 print("Disconnected from AP")
---obstacle avoid
 end)
 
+--initialsiing servopins
+servopin=7
+pwm.setup(servopin,50,26)
+pwm.start(servopin)
+
+--initialsiing rssi array
+RSSI = {}  -- create the matrix
+for i=1,N do
+      RSSI[i] = {}     -- create a new row
+      for j=1,2 do
+        RSSI[i][j] = 0
+      end
+    end
+RSSI_AVG = {}
+--initialsing global variable
+step=3
+pwm_pos=26
+--creating timer object called move_timer
+move_timer=tmr.create()
+servo_time=tmr.create()
+done_scanning=false
 --Once connected to AP
-move_forward_tmr=tmr.create()
 wifi.eventmon.register(wifi.eventmon.STA_CONNECTED,function(t)
 	print(t.ssid)
 	print("Connected!!")
-	rssi=wifi.sta.getrssi()
-	while rssi>-60 and rssi<-30 do
-		servo_step=2
-		servo_movements()
-		predict()
-		turn_bot()
-		move_forward_tmr:alarm(500,tmr.ALARM_SINGLE,function (t)
+	move_timer:alarm(1000,tmr.ALARM_AUTO,function(t)
+		if done_scanning==true then
 			forward()
-		end)
-	end
+			done_scanning=false
+			step=2
+			servo_timer:register(1000,tmr.ALARM_AUTO,servo_scan)
+		end
+	end)
+	servo_timer:alarm(1000,tmr.ALARM_AUTO,servo_scan)
 end)
 
+turn_timer=tmr.create()
+function servo_scan()
 
+	--anticlockwise rotation
+	if step==3 then
+		--checking for end_limits
+		if pwm_pos==97+26 then
+		
+			print("Stopping anticlockwise rotation next clockwise")
+			step=step-1
+			pwm_pos=pwm_pos-1
+		
+		else
+			RSSI[0][pwm_pos-25]=wifi.sta.getrssi()
+			pwm_pos=pwm_pos+1
+		end
+	--clockwise rotation
+	else if step==2 then
+		--checking for end_limits
+		if pwm_pos==25 then
+			print("Stopping clockwise rotation next step is turning the bot")
+			pwm.setduty(servopin,26+48)--whatever angle is the 90 degree position
+			step=step-1
+		else
+			RSSI[1][pwm_pos-25]=wifi.sta.getrssi()
+			pwm_pos=pwm_pos-1
+		end
+	else if step==1 then
+		heading_1=compass_reading()
+		predicted_pwm_value,predicted_direction=prediction()--returns predicted_pwm_value and direction from mean
+		pwm.setduty(servopin,predicted_pwm_value)
+	else 
+		heading_2=compass_reading()
+		servo_timer:unregister()
+		if math.abs(heading_2-heading_1)>50 then
+			diff_angle=360-math.abs(heading_2-heading_1)
+		else 
+			diff_angle=math.abs(heading_2-heading_1)
+		end
 
+		if direction=='left' then 
+			if heading_1-diff_angle<0 then
+				target_heading=heading_1-diff_angle+360
+			else 
+				target_heading=heading_1-diff_angle
+			end
 
+			left()
+			turn_timer:register(100,tmr.ALARM_AUTO,function(t)
+				curr_heading=compass_reading()
+				if curr_heading<=target_heading then
+					stop()
+					t:unregister()
+					done_scanning=true
+					
+				end
+			end)	
+		else --'right'
+			if heading_1+diff_angle>360 then
+				target_heading=heading_1+diff_angle-360
+			else 
+				target_heading=heading_1+diff_angle
+			end
 
+			right()
+			turn_timer:register(100,tmr.ALARM_AUTO,function(t)
+				curr_heading=compass_reading()
+				if curr_heading>=target_heading then
+					stop()
+					t:unregister()
+					done_scanning=true
+					
+				end
+			end)
 
+	end
+end
