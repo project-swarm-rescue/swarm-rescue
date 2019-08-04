@@ -1,4 +1,4 @@
-servoPin=8
+servoPin=7
 duty=26
 N=96
 
