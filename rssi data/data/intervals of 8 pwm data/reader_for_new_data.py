@@ -1,5 +1,5 @@
-directory='/home/mukund/swarm-rescue/rssi data/data/intervals of 8 pwm data/'
-files=['00data.txt','08data.txt','16data.txt','24data.txt','80data.txt','88data.txt','96data.txt']
+directory='data/intervals of 8 pwm data/'
+files=['0data.txt','8data.txt','16data.txt','24data.txt','80data.txt','88data.txt','96data.txt']
 data_titles=[]
 rssi_1=[]
 rssi_2=[]

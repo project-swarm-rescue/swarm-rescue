@@ -3,7 +3,7 @@ import glob
 from math import pi
 
 #Open and read files
-class_names = ['farRight','Right','Centre','Left','farLeft']
+class_names = [0,8,16,24,72,80,88,96]
 feature_count=96 #no of features
 x = np.empty((0,feature_count))
 x_cov= np.empty((0,feature_count,feature_count))
@@ -16,13 +16,16 @@ for class_name in class_names:
 	y_prob=np.append(y_prob,np.zeros(1))
 	# print('y_prob:{}'.format(y_prob))
 	# print('class_name:{}'.format(class_name))
-	for filename in glob.glob('data/'+class_name+'*.txt'):
+	for filename in glob.glob('data/intervals of 8 pwm data/{0:d}data.txt'.format(class_name)):
 		with open(filename) as datafile:
-			# print(filename)
+			print(filename)
 			data=np.loadtxt(datafile)
-			# print('data:\n{}\nshape:{}'.format(data[:,1],data[:,1].shape))
-			x_k = np.append(x_k, np.array(data[:,1],ndmin=2),axis=0)	#taking right to left data for now
-		y_prob[y_prob.size-1]= y_prob[y_prob.size-1]+1
+			print('data:\n{}\nshape:{}'.format(data[:,1],data[:,1].shape))
+			while data.shape[0]>=96:
+				
+				x_k = np.append(x_k, np.array(data[:96,1],ndmin=2),axis=0)	#taking right to left data for now
+				data = data[96:,:]
+				y_prob[y_prob.size-1]= y_prob[y_prob.size-1]+1
 
 	cov_matrix = np.expand_dims(np.cov(x_k,rowvar=False),axis=0)
 	x_cov=np.append(x_cov,cov_matrix,axis=0)
@@ -55,3 +58,4 @@ print('inverse:{}'.format(np.linalg.inv(x_cov)))
 Px_y= (1/(np.sqrt(2*pi*cov_det)))*np.exp(-0.5*((x-x_k_mean).transpose(0,1,2,3)@np.linalg.inv(x_cov)@(x-x_k_mean)))
 print('P(X|y=k):\n{}'.format(Px_y))
 
+Py_x =
