@@ -4,6 +4,8 @@ from math import pi
 from scipy.signal import savgol_filter
 import random
 
+from matplotlib import pyplot as plt
+from time import sleep
 
 class_names = np.array((0,8,16,24,72,80,88,96))
 feature_count=16 #no of features
@@ -57,24 +59,37 @@ for class_name in class_names:
 	x_k=np.empty((0,feature_count),int)
 	y_k=np.empty(0)
 	y_prob=np.append(y_prob,np.zeros(1))
-
+	plt.figure()
+	plt.title(class_name)
 	# print('y_prob:{}'.format(y_prob))
 	# print('class_name:{}'.format(class_name))
+	plobj,=plt.plot(range(96))
 	for filename in glob.glob('/home/sreekar/Work/swarm-robotics-project/swarm-rescue/rssi data/data/intervals of 8 pwm data/{0:d}data.txt'.format(class_name)):
 		# print('opening..{}'.format(filename))
 		with open(filename) as datafile:
 			# print(filename)
 			data=np.loadtxt(datafile)
 			# print('data:\n{}\nshape:{}'.format(data[:,1],data[:,1].shape))
+			i=0
 			while data.shape[0]>=96:
 				raw_data = data[:96,1]#choosing first sequence of values(right to left data)
-				scaled_data = (raw_data-np.mean(raw_data))/np.std(raw_data) #feature scaling to limit the magnitudes
-				smooth_tuple = savgol_filter(scaled_data, 11, 3) # window size 11, polynomial order 3
+				scaled_data = (raw_data-np.mean(raw_data))#/np.std(raw_data) #feature scaling to limit the magnitudes
+				smooth_tuple = savgol_filter(scaled_data, 7, 3) # window size 11, polynomial order 3
+				plobj.set_ydata(smooth_tuple)
+				plt.ylim(-20,20)
+				plt.draw()
+				# plt.show(block=True)
+				# sleep(2)
+				plt.clf()
+				i=i+1
 				reduced_feature_tuple = np.mean(smooth_tuple.reshape(feature_count,int(smooth_tuple.size/feature_count)),axis=1)
 				x_k = np.append(x_k, np.array(reduced_feature_tuple,ndmin=2),axis=0)	
 				y_k=np.append(y_k,np.array(class_name))
 				data = data[96:,:] #cuts off the front
 
+	
+	# if class_name!=class_names[-1]:plt.show(block=False)
+	# else :plt.show()
 	train_count=21
 	#random selection of training and test data
 	select_index=random.sample(range(x_k.shape[0]),train_count)#randomly select 18 indices
