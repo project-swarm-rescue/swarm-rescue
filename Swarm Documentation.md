@@ -1,3 +1,11 @@
+
+2D bot-to-bot relative pose estimation
+http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.158.1040&rep=rep1&type=pdf
+
+3D relative pose using minimum combination of range and bearing measurements
+https://www.researchgate.net/publication/261496379_Determining_the_Robot-to-Robot_3D_Relative_Pose_using_Combinations_of_Range_and_Bearing_Measurements_Part_II
+
+
 How to flash node mcu firmware
 http://www.whatimade.today/flashing-the-nodemcu-firmware-on-the-esp8266-linux-guide/
 

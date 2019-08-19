@@ -2,10 +2,10 @@
 -- the motor pins setup and start
 motor_pwm_freq=100
 
-left1=3
-left2=4
-right1=5
-right2=6
+left1=7
+left2=8
+right1=1
+right2=2
 
 pwm.setup(left1,motor_pwm_freq,0)
 pwm.setup(left2,motor_pwm_freq,0)
@@ -60,9 +60,9 @@ end
 mode=wifi.setmode(wifi.STATION)
 
 sta={}
-sta.ssid="OnePlus6T"
+sta.ssid="OnePlus 6T"
 sta.pwd="12345678"
-
+wifi.sta.config(sta)
 step=0 --setting as global variable
 
 --registration of callbacks
@@ -100,7 +100,7 @@ function far_movements(step_t)
 		step=step-1
 
 	--turning left
-	else if step==3 then
+	elseif step==3 then
 		heading_1=compass_reading()
 			--identifying the target heading angle
 			if heading_1-90<0 then
@@ -122,12 +122,12 @@ function far_movements(step_t)
 		step_t:register(1000,tmr.ALARM_AUTO,far_movements)
 	
 	--moving forward
-	else if step==2 then
+	elseif step==2 then
 		b1_rssi=wifi.sta.getrssi()
 		forward()
 		step=step-1
 	--last step
-	else if step==1 then
+	elseif step==1 then
 		b2_rssi=wifi.sta.getrssi()
 		--checking a2_rssi-a1_rssi to avoid going back and then coming back
 		if a2_rssi-a1_rssi==0 then
@@ -190,9 +190,9 @@ radian_to_angle=180/math.pi
 function return_angle_direction(a,b)
 	if b>0 and a>0 then
 		return math.atan(a/b)*radian_to_angle,'right'
-	else if a<0 and b<0 then
+	elseif a<0 and b<0 then
 		return 180-math.atan(a/b)*radian_to_angle,'left'
-	else if a>0 and b<0 then
+	elseif a>0 and b<0 then
 		return 180-math.atan(-a/b)*radian_to_angle,'right'
 	else 
 		return math.atan(a/-b)*radian_to_angle,'left'
@@ -215,8 +215,8 @@ function keep_moving_till_closer()
 end
 
 id  = 0 -- always 0
-scl = 1 -- set pin 6 as scl
-sda = 2 -- set pin 7 as sda
+scl = 4 -- set pin 6 as scl
+sda = 5 -- set pin 7 as sda
 
 
 --Define declination of location from where measurement going to be done.
@@ -295,9 +295,4 @@ function compass_reading()  --read and print accelero, gyro and temperature valu
     print(string.format("Heading angle : %d", Heading))
     return Heading
 end
-
-
-timer = tmr.create()
-timer:alarm(500,tmr.ALARM_AUTO,read_heading)
-
 
