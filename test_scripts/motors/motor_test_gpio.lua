@@ -1,8 +1,8 @@
 motorpins={}
-motorpins.left1=1
-motorpins.left2=2
-motorpins.right1=6
-motorpins.right2=5
+motorpins.right1=5
+motorpins.right2=6
+motorpins.left1=7
+motorpins.left2=8
 
 
 gpio.mode(motorpins.left1,gpio.OUTPUT)

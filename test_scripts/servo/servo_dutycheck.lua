@@ -1,0 +1,5 @@
+SERVO_PIN =7
+DUTY=26+72
+
+pwm.setup(SERVO_PIN,50,DUTY)
+pwm.start(SERVO_PIN)

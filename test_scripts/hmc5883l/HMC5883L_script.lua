@@ -1,6 +1,6 @@
 id  = 0 -- always 0
-scl = 4 -- set pin 6 as scl
-sda = 5 -- set pin 7 as sda
+scl = 1 -- set pin 6 as scl
+sda = 2 -- set pin 7 as sda
 
 
 --Define declination of location from where measurement going to be done.

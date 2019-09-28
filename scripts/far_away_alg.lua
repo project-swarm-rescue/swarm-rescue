@@ -1,58 +1,67 @@
+-- far_away_alg
+-- algo triggered when rssi value to ap is < RSSI_THRESH
+SSID="sreekar"
+PASSWORD="omsairam"
 
--- the motor pins setup and start
-motor_pwm_freq=100
+PWM_FREQ=100
+PWM_DUTY_DEFAULT=700
+PWM_DUTY=PWM_DUTY_DEFAULT
 
-left1=7
-left2=8
-right1=1
-right2=2
+SCL_PIN = 1
+SDA_PIN = 2 
 
-pwm.setup(left1,motor_pwm_freq,0)
-pwm.setup(left2,motor_pwm_freq,0)
-pwm.setup(right1,motor_pwm_freq,0)
-pwm.setup(right2,motor_pwm_freq,0)
+RIGHT1=5
+RIGHT2=6
+LEFT1=7
+LEFT2=8
 
-pwm.start(left1)
-pwm.start(right1)
-pwm.start(left2)
-pwm.start(right2)
+RSSI_THRESH=-50
+
+pwm.setup(LEFT1,PWM_FREQ,0)
+pwm.setup(LEFT2,PWM_FREQ,0)
+pwm.setup(RIGHT1,PWM_FREQ,0)
+pwm.setup(RIGHT2,PWM_FREQ,0)
+
+pwm.start(LEFT1)
+pwm.start(RIGHT1)
+pwm.start(LEFT2)
+pwm.start(RIGHT2)
 
 
-pwm_duty=1023
 --setting up functions for the bot movement
 function forward()
-	pwm.setduty(left1,pwm_duty)
-	pwm.setduty(left2,0)
-	pwm.setduty(right1,pwm_duty)
-	pwm.setduty(right2,0)
+	pwm.setduty(LEFT1,PWM_DUTY)
+	pwm.setduty(LEFT2,0)
+	pwm.setduty(RIGHT1,PWM_DUTY)
+	pwm.setduty(RIGHT2,0)
 end
 
 function left()
-	pwm.setduty(left1,0)
-	pwm.setduty(left2,pwm_duty)
-	pwm.setduty(right1,pwm_duty)
-	pwm.setduty(right2,0)
+	pwm.setduty(LEFT1,0)
+	pwm.setduty(LEFT2,PWM_DUTY)
+	pwm.setduty(RIGHT1,PWM_DUTY)
+	pwm.setduty(RIGHT2,0)
 end
 
 function right()
-	pwm.setduty(left1,pwm_duty)
-	pwm.setduty(left2,0)
-	pwm.setduty(right1,0)
-	pwm.setduty(right2,pwm_duty)
+	pwm.setduty(LEFT1,PWM_DUTY)
+	pwm.setduty(LEFT2,0)
+	pwm.setduty(RIGHT1,0)
+	pwm.setduty(RIGHT2,PWM_DUTY)
 end
 
 function backward()
-	pwm.setduty(left1,0)
-	pwm.setduty(left2,pwm_duty)
-	pwm.setduty(right1,0)
-	pwm.setduty(right2,pwm_duty)
+	pwm.setduty(LEFT1,0)
+	pwm.setduty(LEFT2,PWM_DUTY)
+	pwm.setduty(RIGHT1,0)
+	pwm.setduty(RIGHT2,PWM_DUTY)
 end
 
 function stop()
-	pwm.setduty(left1,0)
-	pwm.setduty(left2,0)
-	pwm.setduty(right1,0)
-	pwm.setduty(right2,0)
+	pwm.setduty(LEFT1,0)
+	pwm.setduty(LEFT2,0)
+	pwm.setduty(RIGHT1,0)
+	pwm.setduty(RIGHT2,0)
 end
 
 
@@ -60,41 +69,41 @@ end
 mode=wifi.setmode(wifi.STATION)
 
 sta={}
-sta.ssid="OnePlus 6T"
-sta.pwd="12345678"
+sta.ssid=SSID
+sta.pwd=PASSWORD
 wifi.sta.config(sta)
 step=0 --setting as global variable
 
 --registration of callbacks
 --Disconnected from AP callback
 wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED,function(t)
-print(t.ssid)
-print("Disconnected from AP")
---obstacle avoid
+	print("Disconnected from AP : ",t.ssid)
+	--random movement
 end)
 
---creating timer object called step_timer
 step_timer=tmr.create()
---Once connected to AP
+
+--Once connected to AP check rssi and start callback timer for far_movements
 wifi.eventmon.register(wifi.eventmon.STA_CONNECTED,function(t)
 	print(t.ssid)
 	print("Connected!!")
 	rssi=wifi.sta.getrssi()
-	if rssi<-60 then
+    print('initial rssi '..rssi)
+	if rssi<RSSI_THRESH then
 		print("Starting far away alg")
 		step=4
-		step_timer:alarm(1000,tmr.ALARM_AUTO,far_movements)
+		step_timer:alarm(4000,tmr.ALARM_AUTO,far_movements)
 	end
 end)
 
 
---creating turn timer object
 turn_timer=tmr.create()
 
---function far_movements
 function far_movements(step_t)
+
 	--moving forward
 	if step==4 then
+		print('moving forward')
 		a1_rssi=wifi.sta.getrssi()
 		forward()
 		step=step-1
@@ -111,15 +120,17 @@ function far_movements(step_t)
 		a2_rssi=wifi.sta.getrssi()
 		step_t:unregister()
 		left()
-		turn_timer:alarm(100,tmr.ALARM_AUTO,function(t)
+        PWM_DUTY=PWM_DUTY_DEFAULT-400
+		turn_timer:alarm(30,tmr.ALARM_AUTO,function(t)
 			curr_heading=compass_reading()
 			if curr_heading<=heading_90 then
 				stop()
 				t:unregister()
+				step=step-1
+                PWM_DUTY=PWM_DUTY_DEFAULT
+				step_t:register(1000,tmr.ALARM_AUTO,far_movements)
 			end
 		end)
-		step=step-1
-		step_t:register(1000,tmr.ALARM_AUTO,far_movements)
 	
 	--moving forward
 	elseif step==2 then
@@ -200,13 +211,11 @@ function return_angle_direction(a,b)
 end
 
 
-
-
 --keep moving after far away alg till rssi<threshold rssi
 check_timer=tmr.create()
 function keep_moving_till_closer()
 	check_timer:alarm(200,tmr.ALARM_AUTO,function(c_t)
-		if wifi.sta.getrssi>-60 then
+		if wifi.sta.getrssi>RSSI_THRESH then
 			stop()
 			c_t:unregister()
 		end
@@ -214,9 +223,6 @@ function keep_moving_till_closer()
 	end)
 end
 
-id  = 0 -- always 0
-scl = 4 -- set pin 6 as scl
-sda = 5 -- set pin 7 as sda
 
 
 --Define declination of location from where measurement going to be done.
@@ -232,9 +238,9 @@ function arcsin(value)
     if(value == nil) then
         return 0
     end
--- as per equation it needs infinite iterations to reach upto 100% accuracy
--- but due to technical limitations we are using
--- only 10000 iterations to acquire reliable accuracy
+	-- as per equation it needs infinite iterations to reach upto 100% accuracy
+	-- but due to technical limitations we are using
+	-- only 10000 iterations to acquire reliable accuracy
     for i = 1, 10000, 2 do
         val = (val*(value*value)*(i*i)) / ((i+1)*(i+2))
         sum = sum + val;
@@ -277,7 +283,8 @@ function atan2(y, x)
 end
 
 
-i2c.setup(id, sda, scl, i2c.SLOW) -- call i2c.setup() only once
+id  = 0 -- always 0
+i2c.setup(id, SDA_PIN, SCL_PIN, i2c.SLOW) -- call i2c.setup() only once
 hmc5883l.setup()
 
 function compass_reading()  --read and print accelero, gyro and temperature value
@@ -291,7 +298,7 @@ function compass_reading()  --read and print accelero, gyro and temperature valu
         Heading = Heading + 2*pi
     end
 
-    Heading = Heading*180/pi  --convert radian to angle
+    Heading = Heading*180/pi  --convert radian to degree
     print(string.format("Heading angle : %d", Heading))
     return Heading
 end
