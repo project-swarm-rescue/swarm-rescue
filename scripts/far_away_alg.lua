@@ -1,7 +1,7 @@
 -- far_away_alg
 -- algo triggered when rssi value to ap is < RSSI_THRESH
-SSID="sreekar"
-PASSWORD="omsairam"
+SSID="OnePlus 6T"
+PASSWORD="12345678"
 
 PWM_FREQ=100
 PWM_DUTY_DEFAULT=700
@@ -15,7 +15,7 @@ RIGHT2=6
 LEFT1=7
 LEFT2=8
 
-RSSI_THRESH=-50
+RSSI_THRESH=-30
 
 pwm.setup(LEFT1,PWM_FREQ,0)
 pwm.setup(LEFT2,PWM_FREQ,0)
@@ -92,7 +92,7 @@ wifi.eventmon.register(wifi.eventmon.STA_CONNECTED,function(t)
 	if rssi<RSSI_THRESH then
 		print("Starting far away alg")
 		step=4
-		step_timer:alarm(4000,tmr.ALARM_AUTO,far_movements)
+		step_timer:alarm(1000,tmr.ALARM_AUTO,far_movements)
 	end
 end)
 
@@ -107,7 +107,6 @@ function far_movements(step_t)
 		a1_rssi=wifi.sta.getrssi()
 		forward()
 		step=step-1
-
 	--turning left
 	elseif step==3 then
 		heading_1=compass_reading()
@@ -118,17 +117,20 @@ function far_movements(step_t)
 				heading_90=heading_1-90
 			end	
 		a2_rssi=wifi.sta.getrssi()
-		step_t:unregister()
+		step_t:stop()
+		PWM_DUTY=PWM_DUTY_DEFAULT-300
 		left()
-        PWM_DUTY=PWM_DUTY_DEFAULT-400
-		turn_timer:alarm(30,tmr.ALARM_AUTO,function(t)
+		turn_timer:alarm(10,tmr.ALARM_AUTO,function(t)
 			curr_heading=compass_reading()
-			if curr_heading<=heading_90 then
+			print('turning left')
+			if math.abs(curr_heading-heading_90)<=5 then
 				stop()
 				t:unregister()
+				print('unregistered')
 				step=step-1
                 PWM_DUTY=PWM_DUTY_DEFAULT
-				step_t:register(1000,tmr.ALARM_AUTO,far_movements)
+				step_timer:start()
+				print('registered again')
 			end
 		end)
 	
@@ -151,6 +153,7 @@ function far_movements(step_t)
 		end
 	else
 		step_t:unregister()--steps done after all
+		stop()
 		heading_1=compass_reading()
 		a=a2_rssi-a1_rssi
 		b=b2_rssi-b1_rssi
@@ -166,7 +169,7 @@ function far_movements(step_t)
 			left()
 			turn_timer:register(100,tmr.ALARM_AUTO,function(t)
 				curr_heading=compass_reading()
-				if curr_heading<=target_heading then
+				if math.abs(curr_heading-target_heading)<=5 then
 					stop()
 					t:unregister()
 					keep_moving_till_closer()
@@ -182,7 +185,7 @@ function far_movements(step_t)
 			right()
 			turn_timer:register(100,tmr.ALARM_AUTO,function(t)
 				curr_heading=compass_reading()
-				if curr_heading>=target_heading then
+				if math.abs(curr_heading-target_heading)<=5 then
 					stop()
 					t:unregister()
 					keep_moving_till_closer()
@@ -199,6 +202,7 @@ end
 
 radian_to_angle=180/math.pi
 function return_angle_direction(a,b)
+	print(a,b)
 	if b>0 and a>0 then
 		return math.atan(a/b)*radian_to_angle,'right'
 	elseif a<0 and b<0 then
